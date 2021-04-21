@@ -89,7 +89,7 @@ bolts:
     configMethods:
       - name: "withNProperties"
         args:
-          - "10"
+          - 10
     parallelism: 1
   - id: "store-bolt"
     className: "org.apache.storm.redis.bolt.RedisStoreBolt"
