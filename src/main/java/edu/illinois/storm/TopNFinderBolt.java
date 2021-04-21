@@ -1,8 +1,12 @@
 package edu.illinois.storm;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
+import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -11,9 +15,34 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-/** a bolt that finds the top n words. */
+/**
+ * a bolt that finds the top n words.
+ */
 public class TopNFinderBolt extends BaseRichBolt {
   private OutputCollector collector;
+  private int topN;
+
+  public final PriorityQueue<Entry> sortByCountDesc = new PriorityQueue<>(Entry.SORT_BY_COUNT_DESC);
+
+  public static class Entry {
+    public static final Comparator<Entry> SORT_BY_COUNT_DESC =
+      Comparator.comparing(Entry::getCount).reversed();
+    String word;
+    int count;
+
+    public Entry(String w, int c) {
+      this.word = w;
+      this.count = c;
+    }
+
+    public String getWord() {
+      return word;
+    }
+
+    public int getCount() {
+      return count;
+    }
+  }
 
   // Hint: Add necessary instance variables and inner classes if needed
 
@@ -24,35 +53,38 @@ public class TopNFinderBolt extends BaseRichBolt {
   }
 
   public TopNFinderBolt withNProperties(int N) {
-    /* ----------------------TODO-----------------------
-    Task: set N
-    ------------------------------------------------- */
-
-		// End
-		return this;
+    this.topN = N;
+    return this;
   }
 
   @Override
   public void execute(Tuple tuple) {
+    String word = tuple.getString(0);
+    int count = tuple.getInteger(1);
+    sortByCountDesc.offer(new Entry(word, count));
+    List<Entry> topN = new ArrayList<>();
+    int ctr = 0;
+    while (!sortByCountDesc.isEmpty() && ctr < this.topN) {
+      ctr++;
+      topN.add(sortByCountDesc.poll());
+    }
+    collector.emit(new Values(
+      StringUtils.join(
+        topN.stream().map(s -> s.word).collect(Collectors.toList()), ", ")));
+    sortByCountDesc.addAll(topN);
     /* ----------------------TODO-----------------------
     Task: keep track of the top N words
 		Hint: implement efficient algorithm so that it won't be shutdown before task finished
 		      the algorithm we used when we developed the auto-grader is maintaining a N size min-heap
     ------------------------------------------------- */
 
-		// End
+    // End
   }
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    /* ----------------------TODO-----------------------
-    Task: define output fields
-		Hint: there's no requirement on sequence;
-					For example, for top 3 words set ("hello", "word", "cs498"),
-					"hello, world, cs498" and "world, cs498, hello" are all correct
-    ------------------------------------------------- */
+    declarer.declare(new Fields("top-N"));
 
-    // END
   }
 
 }

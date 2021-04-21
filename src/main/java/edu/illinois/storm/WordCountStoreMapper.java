@@ -11,7 +11,7 @@ public class WordCountStoreMapper implements RedisStoreMapper {
   public WordCountStoreMapper(String hashKey) {
     this.hashKey = hashKey;
     description =
-        new RedisDataTypeDescription(RedisDataTypeDescription.RedisDataType.HASH, hashKey);
+      new RedisDataTypeDescription(RedisDataTypeDescription.RedisDataType.HASH, hashKey);
   }
 
   @Override
@@ -24,8 +24,8 @@ public class WordCountStoreMapper implements RedisStoreMapper {
     /* ----------------------TODO-----------------------
     Task: define which part of the tuple as the key
     ------------------------------------------------- */
-		return "";
-		// End
+    return tuple.getStringByField("word");
+    // End
   }
 
   @Override
@@ -33,7 +33,7 @@ public class WordCountStoreMapper implements RedisStoreMapper {
     /* ----------------------TODO-----------------------
     Task: define which part of the tuple as the value
     ------------------------------------------------- */
-		return "";
-		// End
+    return tuple.getIntegerByField("count").toString();
+    // End
   }
 }

@@ -10,9 +10,12 @@ import org.apache.storm.tuple.Values;
 import java.util.HashMap;
 import java.util.Map;
 
-/** a bolt that tracks word count */
+/**
+ * a bolt that tracks word count
+ */
 public class WordCountBolt extends BaseBasicBolt {
   // Hint: Add necessary instance variables if needed
+  private final Map<String, Integer> countByWord = new HashMap<>();
 
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
@@ -21,15 +24,16 @@ public class WordCountBolt extends BaseBasicBolt {
 		Hint: using instance variable to tracking the word count
     ------------------------------------------------- */
 
-		// End
+    // End
+    String word = tuple.getString(0);
+    int count = countByWord.getOrDefault(word, 0);
+    count++;
+    countByWord.put(word, count);
+    collector.emit(new Values(word, count));
   }
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    /* ----------------------TODO-----------------------
-    Task: declare output fields
-    ------------------------------------------------- */
-
-		// End
+    declarer.declare(new Fields("word", "count"));
   }
 }

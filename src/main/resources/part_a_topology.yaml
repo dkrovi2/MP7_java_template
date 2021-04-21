@@ -43,36 +43,76 @@ components:
   # Task: implement the redis store mapper
   # src/main/java/edu/illinois/storm/WordCountStoreMapper.java
   # redis hash key for part A is "partAWordCount"
+  - id: "storeMapper"
+    className: "edu.illinois.storm.WordCountStoreMapper"
+    constructorArgs:
+      - "partAWordCount"
 
 # spout definitions
 spouts:
   # TODO
   # Task: implement the random sentence spout
   # src/main/java/edu/illinois/storm/RandomSentenceSpout.java
+  - id: "random-sentence-spout"
+    className: "edu.illinois.storm.RandomSentenceSpout"
+      constructorArgs:
+        # command lines
+        - ["node", "random_sentence_spout.java"]
+        # output fields
+        - ["word"]
+    parallelism: 1
 
 # bolt definitions
 bolts:
   # TODO
   # Task: implement the split sentences bolt
   # src/main/java/edu/illinois/storm/SplitSentenceBolt.java
+  - id: "split-bolt"
+    className: "edu.illinois.storm.SplitSentenceBolt"
+    parallelism: 1
 
   # TODO
   # Task: implement the word count bolt
   # src/main/java/edu/illinois/storm/WordCountBolt.java
+  - id: "count-bolt"
+    className: "edu.illinois.storm.WordCountBolt"
+    parallelism: 1
 
   # TODO
   # Task: initialize RedisStoreBolt using poolConfig and storeMapper
   # ClassName is "org.apache.storm.redis.bolt.RedisStoreBolt"
+  - id: "store-bolt"
+    className: "org.apache.storm.redis.bolt.RedisStoreBolt"
+    constructorArgs:
+      - ref: "poolConfig"
+      - ref: "storeMapper"
+    parallelism: 1
 
 # stream definitions
 # stream definitions define connections between spouts and bolts.
 streams:
   # TODO
   # Task: pipe output of sentences generating spout to split bolt
+  - name: "random-sentence-spout --> split-bolt"
+    from: "random-sentence-spout"
+    to: "split-bolt"
+    grouping:
+      type: SHUFFLE
 
   # TODO
   # Task: pipe output of split bolt to word count bolt
   # Hint: choose the right grouping type to make problem easier
+  - name: "split-bolt --> count-bolt"
+    from: "split-bolt"
+    to: "count-bolt"
+    grouping:
+      type: FIELDS
+      args: ["word"]
 
   # TODO
   # Task: pipe output of word count bolt to redis store bolt
+  - name: "count-bolt --> store-bolt"
+    from: "count-bolt"
+    to: "store-bolt"
+    grouping:
+      type: SHUFFLE

@@ -7,25 +7,22 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-/** a bolt that split sentences */
+/**
+ * a bolt that split sentences
+ */
 public class SplitSentenceBolt extends BaseBasicBolt {
 
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
-    /* ----------------------TODO-----------------------
-    Task: split sentence and emit words
-		Hint: split on "[^a-zA-Z0-9-]"
-    ------------------------------------------------- */
-
-		// End
+    String sentence = tuple.getString(0);
+    String[] words = sentence.split("[^a-zA-Z0-9-]");
+    for (String word : words) {
+      collector.emit(new Values(word));
+    }
   }
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    /* ----------------------TODO-----------------------
-    Task: declare output fields
-    ------------------------------------------------- */
-
-		// End
+    declarer.declare(new Fields("word"));
   }
 }
