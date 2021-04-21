@@ -22,7 +22,7 @@ public class TopNFinderBolt extends BaseRichBolt {
   private OutputCollector collector;
   private int topN;
 
-  public final PriorityQueue<Entry> sortByCountDesc = new PriorityQueue<>(Entry.SORT_BY_COUNT_DESC);
+  public PriorityQueue<Entry> sortByCountDesc;
 
   public static class Entry {
     public static final Comparator<Entry> SORT_BY_COUNT_DESC =
@@ -50,6 +50,7 @@ public class TopNFinderBolt extends BaseRichBolt {
   @Override
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     this.collector = collector;
+    this.sortByCountDesc = new PriorityQueue<>(Entry.SORT_BY_COUNT_DESC);
   }
 
   public TopNFinderBolt withNProperties(int N) {
