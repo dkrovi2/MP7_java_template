@@ -55,11 +55,11 @@ spouts:
   # src/main/java/edu/illinois/storm/RandomSentenceSpout.java
   - id: "random-sentence-spout"
     className: "edu.illinois.storm.RandomSentenceSpout"
-      constructorArgs:
-        # command lines
-        - ["node", "random_sentence_spout.java"]
-        # output fields
-        - ["word"]
+    constructorArgs:
+      # command lines
+      - ["node", "random_sentence_spout.java"]
+      # output fields
+      - ["word"]
     parallelism: 1
 
 # bolt definitions
