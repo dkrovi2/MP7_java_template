@@ -70,18 +70,21 @@ public class TopNFinderBolt extends BaseRichBolt {
   public void execute(Tuple tuple) {
     String word = tuple.getString(0);
     int count = tuple.getInteger(1);
+    if (word == null || word.trim() == "") {
+      return;
+    }
     sortByCountDesc.offer(new Entry(word, count));
-    List<Entry> topN = new ArrayList<>();
+    List<Entry> topNEntries = new ArrayList<>();
     int ctr = 0;
     while (!sortByCountDesc.isEmpty() && ctr < this.topN) {
       ctr++;
-      topN.add(sortByCountDesc.poll());
+      topNEntries.add(sortByCountDesc.poll());
     }
-    System.out.println(topN);
+    System.out.println(topNEntries);
     collector.emit(new Values(
       StringUtils.join(
-        topN.stream().map(s -> s.word).collect(Collectors.toList()), ", ")));
-    sortByCountDesc.addAll(topN);
+        topNEntries.stream().map(s -> s.word).collect(Collectors.toList()), ", ")));
+    sortByCountDesc.addAll(topNEntries);
     /* ----------------------TODO-----------------------
     Task: keep track of the top N words
 		Hint: implement efficient algorithm so that it won't be shutdown before task finished

@@ -124,8 +124,7 @@ streams:
     from: "count-bolt"
     to: "top-n-bolt"
     grouping:
-      type: FIELDS
-      args: ["word", "count"]
+      type: SHUFFLE
 
   - name: "top-n-bolt --> store-bolt"
     from: "top-n-bolt"
