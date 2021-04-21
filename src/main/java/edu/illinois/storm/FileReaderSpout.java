@@ -53,7 +53,7 @@ public class FileReaderSpout implements IRichSpout {
       if (null != line) {
         _collector.emit(new Values(line));
       } else {
-        Utils.sleep(200);
+        Utils.sleep(1000);
       }
     } catch (Exception e) {
       e.printStackTrace();
