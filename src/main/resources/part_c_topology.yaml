@@ -97,7 +97,7 @@ streams:
       type: SHUFFLE
 
   - name: "split-bolt --> normalizer-bolt"
-    from: "split-spout"
+    from: "split-bolt"
     to: "normalizer-bolt"
     grouping:
       type: SHUFFLE
