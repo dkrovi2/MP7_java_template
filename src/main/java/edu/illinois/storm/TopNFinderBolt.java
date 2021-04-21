@@ -42,6 +42,14 @@ public class TopNFinderBolt extends BaseRichBolt {
     public int getCount() {
       return count;
     }
+
+    @Override
+    public String toString() {
+      return "Entry{" +
+        "word='" + word + '\'' +
+        ", count=" + count +
+        '}';
+    }
   }
 
   // Hint: Add necessary instance variables and inner classes if needed
@@ -69,6 +77,7 @@ public class TopNFinderBolt extends BaseRichBolt {
       ctr++;
       topN.add(sortByCountDesc.poll());
     }
+    System.out.println(topN);
     collector.emit(new Values(
       StringUtils.join(
         topN.stream().map(s -> s.word).collect(Collectors.toList()), ", ")));
