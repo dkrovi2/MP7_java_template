@@ -2,6 +2,7 @@ package edu.illinois.storm;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -23,6 +24,7 @@ public class TopNFinderBolt extends BaseRichBolt {
   private int topN;
 
   public PriorityQueue<Entry> sortByCountDesc;
+  public Map<String, Integer> groupByWord;
 
   public static class Entry {
     public static final Comparator<Entry> SORT_BY_COUNT_DESC =
@@ -59,6 +61,7 @@ public class TopNFinderBolt extends BaseRichBolt {
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     this.collector = collector;
     this.sortByCountDesc = new PriorityQueue<>(Entry.SORT_BY_COUNT_DESC);
+    this.groupByWord = new HashMap<>();
   }
 
   public TopNFinderBolt withNProperties(int N) {
@@ -70,15 +73,18 @@ public class TopNFinderBolt extends BaseRichBolt {
   public void execute(Tuple tuple) {
     String word = tuple.getString(0);
     int count = tuple.getInteger(1);
-    if (word == null || word.trim() == "") {
+    if (word == null || word.trim().isEmpty()) {
       return;
     }
-    sortByCountDesc.offer(new Entry(word, count));
+    int total = groupByWord.getOrDefault(word, 0) + 1;
+    groupByWord.put(word, total);
+    sortByCountDesc.clear();
+    sortByCountDesc.addAll(groupByWord.entrySet().stream().map(k -> new Entry(k.getKey(), k.getValue())).collect(Collectors.toList()));
     List<Entry> topNEntries = new ArrayList<>();
     int ctr = 0;
-    while (!sortByCountDesc.isEmpty() && ctr < this.topN) {
-      ctr++;
+    while (ctr < topN && !sortByCountDesc.isEmpty()) {
       topNEntries.add(sortByCountDesc.poll());
+      ctr++;
     }
     System.out.println(topNEntries);
     collector.emit(new Values(
