@@ -58,9 +58,9 @@ spouts:
   - id: "file-reader-spout"
     className: "edu.illinois.storm.FileReaderSpout"
     configMethods:
-      -name: "withInputFileProperties"
-       args:
-        - "/tmp/data.txt"
+      - name: "withInputFileProperties"
+        args:
+          - "/tmp/data.txt"
     parallelism: 1
 
 # bolt definitions
